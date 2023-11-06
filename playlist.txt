@@ -1,0 +1,124 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <filesystem>
+#include <vector>
+
+namespace fs = std::filesystem;
+
+// Function to create a new user account
+void signup() {
+    std::string username, password;
+    std::cout << "Enter your username: ";
+    std::cin >> username;
+    std::cout << "Enter your password: ";
+    std::cin >> password;
+
+    // Create a folder for the user if it doesn't exist
+    if (!fs::exists(username)) {
+        fs::create_directory(username);
+    }
+
+    // Save user information to a text file
+    std::ofstream userInfoFile(username + "/user_info.txt");
+    userInfoFile << "Username: " << username << "\nPassword: " << password << "\n";
+    userInfoFile.close();
+
+    std::cout << "Account created successfully." << std::endl;
+}
+
+// Function to login a user
+std::string login() {
+    std::string username, password;
+    std::cout << "Enter your username: ";
+    std::cin >> username;
+    std::cout << "Enter your password: ";
+    std::cin >> password;
+
+    // Check if the user folder and user_info file exist
+    if (fs::exists(username) && fs::exists(username + "/user_info.txt")) {
+        // Check the password by reading from the user_info file
+        std::ifstream userInfoFile(username + "/user_info.txt");
+        std::string userInfo;
+        while (std::getline(userInfoFile, userInfo)) {
+            if (userInfo.find("Password: " + password) != std::string::npos) {
+                std::cout << "Login successful." << std::endl;
+                return username;
+            }
+        }
+        userInfoFile.close();
+        std::cout << "Incorrect password. Please try again." << std::endl;
+    }
+    else {
+        std::cout << "User does not exist. Please sign up." << std::endl;
+    }
+
+    return "";
+}
+
+// Function to display the playlist management menu
+void playlistMenu(const std::string& username) {
+    while (true) {
+        std::cout << "\nPlaylist Management Menu" << std::endl;
+        std::cout << "1. Create a new playlist" << std::endl;
+        std::cout << "2. Select an old playlist" << std::endl;
+        std::cout << "3. Back to main menu" << std::endl;
+        std::cout << "Enter your choice: ";
+
+        int choice;
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                // Implement creating a new playlist
+                std::cout << "Enter the name of the new playlist: ";
+                std::string playlistName;
+                std::cin >> playlistName;
+                // You can create a folder or a file to represent the playlist
+                // For example: fs::create_directory(username + "/" + playlistName);
+                std::cout << "New playlist created." << std::endl;
+                break;
+            case 2:
+                // Implement selecting an old playlist
+                // You can list existing playlists and allow the user to choose one
+                std::cout << "Select an old playlist (not implemented in this example)." << std::endl;
+                break;
+            case 3:
+                return;
+            default:
+                std::cout << "Invalid choice. Please try again." << std::endl;
+        }
+    }
+}
+
+int main() {
+    while (true) {
+        std::cout << "\nMusic Playlist Management System" << std::endl;
+        std::cout << "1. Sign up" << std::endl;
+        std::cout << "2. Log in" << std::endl;
+        std::cout << "3. Quit" << std::endl;
+        std::cout << "Enter your choice: ";
+
+        int choice;
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                signup();
+                break;
+            case 2:
+                std::string username = login();
+                if (!username.empty()) {
+                    playlistMenu(username);
+                }
+                break;
+            case 3:
+                std::cout << "Goodbye!" << std::endl;
+                return 0;
+            default:
+                std::cout << "Invalid choice. Please try again." << std::endl;
+        }
+    }
+
+    return 0;
+}
